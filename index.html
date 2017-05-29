@@ -1,104 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>d3.js with leaflet.js</title>
+	<title>Afghanistan Teacher CDR</title>
 
-    <link 
-        rel="stylesheet" 
-        href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"
-    />
-    <script src="http://d3js.org/d3.v3.min.js"></script>
-
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"/>
+    <script src="http://d3js.org/d3.v4.min.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
     
 </head>
 <body>
 
-	<div id="map" style="width: 1800px; height: 930px"></div>
+	<div id="map"></div>
 
-	<script type="text/javascript">
-	
-        var map = L.map('map').setView([34.427900, 70.435496], 13);
-        const mapStyle = 'https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibGVsYW5kbGVlIiwiYSI6IlF6YXRwcUUifQ.lOwg0AiYU4PwgX4bFgZvAw';
-        mapLink = 
-            '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-        L.tileLayer(
-            mapStyle, {
-            attribution: '&copy; ' + mapLink + ' Contributors',
-            maxZoom: 18,
-            }).addTo(map);
-				
-	/* Initialize the SVG layer */
-	map._initPathRoot()   ; 
-
-	/* We simply pick up the SVG from the map object */
-	var svg = d3.select("#map").select("svg")
-	//g = svg.append("g");
-	
-	d3.csv("coordinate_data.csv", (collection) => {
-		/* Add a LatLng object to each item in the dataset */
-
-		console.log(collection);
-
-		collection.forEach((d) => {
-			d.latitude = parseFloat(d.latitude);
-			d.longitude = parseFloat(d.longitude);
-			d.total = parseFloat(d.total);
-			d.during_work_hours = parseFloat(d.during_work_hours);
-
-			d.LatLng = new L.LatLng(d.latitude, d.longitude);
-		});
-		
-		var feature = svg.selectAll("g")
-				.data(collection)
-			.enter()
-				.append("g")
-
-		feature.append('text')
-			.attr('class', 'text')
-			.text((d) => `${d.during_work_hours}/${d.total}`)
-			
-				
-		feature.append('rect')
-			.attr('class', 'total')
-			.style("stroke", "black")  
-			.style("opacity", 0.6)
-			.style("fill", "orange")
-			.attr("height", (d) => d.total*1)  
-			.attr("width", 5)
-
-		feature.append('rect')
-			.attr('class', 'work_hours')
-			.style("fill", "black")
-			.attr("height", (d) => d.during_work_hours*1)  
-			.attr("width", 3)
-
-
-		// Try to impliment later
-		// var voronoi = d3.geom.voronoi()
-		//   .x((d) => d.longitude)
-		//   .y((d) => d.latitude);
-		// voronoi(collection).forEach((v) => v.point.cell = v);
-		// var buildPathFromPoint = (point) => "M" + point.cell.join("L") + "Z";
-		// svg.append("path")
-		// 	.attr("d", buildPathFromPoint);
-		// console.log(voronoi(collection))
-		
-		map.on("viewreset", update);
-		update();
-
-		function update() {
-			feature.selectAll('.text').attr("transform", 
-				(d) => `translate(${map.latLngToLayerPoint(d.LatLng).x}, ${(map.latLngToLayerPoint(d.LatLng).y - d.total)})`);
-
-			feature.selectAll('.total').attr("transform", 
-				(d) => `translate(${map.latLngToLayerPoint(d.LatLng).x}, ${(map.latLngToLayerPoint(d.LatLng).y - d.total)})`);
-			feature.selectAll('.work_hours').attr("transform", 
-				(d) => `translate(${map.latLngToLayerPoint(d.LatLng).x}, ${(map.latLngToLayerPoint(d.LatLng).y - d.during_work_hours)})`);
-		}
-	});	 
-</script>
+	<script type="text/javascript" src="js.js"></script>
 </body>
 </html>

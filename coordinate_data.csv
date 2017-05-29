@@ -1,4 +1,4 @@
-latitude,longitude,during_work_hours,total
+latitude,longitude,workingHours,total
 34.3962,70.4875,0.0,3
 34.4064,70.4601,0.0,2
 34.416778,70.470556,3.0,3
