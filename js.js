@@ -1,9 +1,5 @@
-var w = window,
-    d = document,
-    e = d.documentElement,
-    g = d.getElementsByTagName('body')[0],
-    width = w.innerWidth || e.clientWidth || g.clientWidth,
-    height = w.innerHeight || e.clientHeight|| g.clientHeight;
+const width = window.innerWidth - 20;
+const height = window.innerHeight - 20;
 
 d3.select('#map')
 	.style('width', width + 'px')
@@ -25,7 +21,47 @@ map._initPathRoot();
 var svg = d3.select("#map").select("svg")
 
 const heightMod = 2;
-const baseWidth = 7;
+const baseWidth = 8;
+
+const drawTower = (selection) => {
+	// Label for the tower
+	selection.append('text')
+		.classed('text', true)
+		.attr('text-anchor', 'middle')
+		.text((d) => `${d.workingHours}/${d.total}`);
+		
+	// Base amount of calls
+	selection.append('rect')
+		.classed('total', true)
+		.style("stroke", "black")  
+		.style("opacity", 0.6)
+		.style("fill", "orange")
+		.attr("height", (d) => d.total * heightMod)  
+		.attr("width", baseWidth);
+
+	// Portion of calls made during work hours
+	selection.append('rect')
+		.classed('work_hours', true)
+		.style("fill", "maroon")
+		.attr("height", (d) => d.workingHours * heightMod)  
+		.attr("width", baseWidth * 3/5);
+
+	// Appending the circle base + clipPath doesn't seem to work for now...
+	// selection.append('clipPath')
+	// 		.attr('id', (d, i) => 'baseClip_' + i)
+	// 	.append('rect')
+	// 		.classed('baseClipLoc', true)
+	// 		.attr('height', baseWidth / 2)
+	// 		.attr('width', baseWidth);
+
+	// selection.append('circle')
+	// 	.classed('base', true)
+	// 	.style("fill", "black")
+	// 	.attr("r", baseWidth / 2)
+	// 	.attr('clip-path', (d, i) => `url(#baseClip_${i})`);
+}
+
+
 d3.csv("coordinate_data.csv", (collection) => {
 	
 	/* Add a LatLng object to each item in the dataset */
@@ -41,26 +77,9 @@ d3.csv("coordinate_data.csv", (collection) => {
 	var feature = svg.selectAll("g")
 			.data(collection)
 		.enter()
-			.append("g")
+			.append("g");
 
-	feature.append('text')
-		.attr('class', 'text')
-		.attr('text-anchor', 'middle')
-		.text((d) => `${d.workingHours}/${d.total}`)
-		
-	feature.append('rect')
-		.attr('class', 'total')
-		.style("stroke", "black")  
-		.style("opacity", 0.6)
-		.style("fill", "orange")
-		.attr("height", (d) => d.total * heightMod)  
-		.attr("width", baseWidth)
-
-	feature.append('rect')
-		.attr('class', 'work_hours')
-		.style("fill", "maroon")
-		.attr("height", (d) => d.workingHours * heightMod)  
-		.attr("width", 4)
+	feature.call(drawTower)
 
 
 	// Try to impliment later
@@ -97,6 +116,8 @@ d3.csv("coordinate_data.csv", (collection) => {
 		const y = (d) => map.latLngToLayerPoint(d.LatLng).y;
 
 		feature.selectAll('.text').attr("transform", (d) => `translate(${x(d)}, ${(y(d) - d.total * heightMod - 5)})`);
+		// feature.selectAll('.base').attr("transform", (d) => `translate(${x(d)}, ${y(d)})`);
+		// feature.selectAll('.baseClipLoc').attr("transform", (d) => `translate(${x(d) - baseWidth / 2}, ${y(d)})`);
 
 		feature.selectAll('.total').attr("transform", (d) => `translate(${x(d) - baseWidth / 2}, ${(y(d) - d.total * heightMod)})`);
 		feature.selectAll('.work_hours').attr("transform", (d) => `translate(${x(d) - baseWidth / 2}, ${(y(d) - d.workingHours * heightMod)})`);
